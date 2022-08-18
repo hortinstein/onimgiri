@@ -1,21 +1,31 @@
 import asyncdispatch, asyncnet
 import sysrandom
+import std/base64
 
 #third party libraries
 import puppy #http comms library
 import monocypher
 import flatty
 
-echo fetch("http://neverssl.com/")
+type
+  Agent* = ref object
+    callbackAddr: string     #todo 
+    sleep: int16 #todo 
+    
+proc getTasks(agent: Agent): string = 
+  result = fetch(agent.callbackAddr)
+  
+#retrieved the 
+proc postResult(agent: Agent, taskResult: string): string = 
+  let req = Request(
+    url: parseUrl(agent.callbackAddr),
+    verb: "post",
+    body: "test the post"
+  )
+  result = fetch(req).body
 
 
-let a_secretKey = getRandomBytes(sizeof(Key))
-let a_publicKey = crypto_key_exchange_public_key(a_secretKey)
+let agent= Agent(callbackAddr:"http://localhost:8080/",sleep: 100)
 
-let b_secretKey = getRandomBytes(sizeof(Key))
-let b_publicKey = crypto_key_exchange_public_key(b_secretKey)
-
-let a_sharedKey = crypto_key_exchange(a_secretKey, b_publicKey)
-let b_sharedKey = crypto_key_exchange(b_secretKey, a_publicKey)
-
-doAssert(a_sharedKey == b_sharedKey)
+echo getTasks(agent)
+echo postResult(agent,"my result")

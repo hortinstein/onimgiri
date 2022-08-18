@@ -1,12 +1,8 @@
-#const LOOKUP_TABLE: array[8, byte] = ["A","A","A","A","A","A","A","A"
- 
-#debug
-when not defined(release):
-  const LOOKUP_TABLE: string = "{this:is:test:json}"
-#release
-when defined(release):
-  const LOOKUP_TABLE: string = "{this:is:release:json}"
-
+const LOOKUP_TABLE =
+    when defined(release):
+        staticRead("release.json")
+    else:
+        staticRead("debug.json")
 type
   Agent = ref object
     buildid: string     #todo 
@@ -17,3 +13,5 @@ type
 
 type 
   EncyptedBytes = ref object
+
+echo LOOKUP_TABLE
