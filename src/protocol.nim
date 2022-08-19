@@ -21,9 +21,7 @@ proc toString*(bytes: seq[byte]): string =
 #[
   encrypts a message and returns a structure ready to be serialized and sent
 ]#
-proc encMsg*( privateKey: Key, 
-                      publicKey: Key, 
-                      plaintext: seq[byte]): EncMsg =
+proc encMsg*( privateKey: Key, publicKey: Key, plaintext: seq[byte]): EncMsg =
   #derive the shared key and material needed to encrypt
   let sharedKey = crypto_key_exchange(privateKey, publicKey)
   let nonce = getRandomBytes(sizeof(Nonce))
@@ -32,15 +30,14 @@ proc encMsg*( privateKey: Key,
   #create the return object
   let myPubKey = crypto_key_exchange_public_key(privateKey)
   result = EncMsg(publicKey: myPubKey,
-                              nonce:nonce,
-                              mac:mac,
-                              cipherLen:cipherText.len,
-                              cipherText:cipherText)
+                  nonce:nonce,
+                  mac:mac,
+                  cipherLen:cipherText.len,
+                  cipherText:cipherText)
 #[
   decrypts a message and returns a byte array
 ]#
-proc decMsg*( privateKey: Key, 
-                      encMsg: EncMsg): seq[byte] =
+proc decMsg*( privateKey: Key, encMsg: EncMsg): seq[byte] =
   #derive the shared key 
   let sharedKey = crypto_key_exchange(privateKey, encMsg.publicKey)
   #perform decryption
