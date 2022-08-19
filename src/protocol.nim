@@ -4,7 +4,7 @@ import flatty
 import std/base64
 
 type
-  EncryptedMessage* = object
+  EncMsg* = object
     publicKey*: Key
     nonce*:     Nonce
     mac*:       Mac
@@ -21,9 +21,9 @@ proc toString*(bytes: seq[byte]): string =
 #[
   encrypts a message and returns a structure ready to be serialized and sent
 ]#
-proc encryptMessage*( privateKey: Key, 
+proc encMsg*( privateKey: Key, 
                       publicKey: Key, 
-                      plaintext: seq[byte]): EncryptedMessage =
+                      plaintext: seq[byte]): EncMsg =
   #derive the shared key and material needed to encrypt
   let sharedKey = crypto_key_exchange(privateKey, publicKey)
   let nonce = getRandomBytes(sizeof(Nonce))
@@ -31,7 +31,7 @@ proc encryptMessage*( privateKey: Key,
   let (mac, ciphertext) = crypto_lock(sharedKey, nonce, plaintext)
   #create the return object
   let myPubKey = crypto_key_exchange_public_key(privateKey)
-  result = EncryptedMessage(publicKey: myPubKey,
+  result = EncMsg(publicKey: myPubKey,
                               nonce:nonce,
                               mac:mac,
                               cipherLen:cipherText.len,
@@ -39,8 +39,8 @@ proc encryptMessage*( privateKey: Key,
 #[
   decrypts a message and returns a byte array
 ]#
-proc decryptMessage*( privateKey: Key, 
-                      encMsg: EncryptedMessage): seq[byte] =
+proc decMsg*( privateKey: Key, 
+                      encMsg: EncMsg): seq[byte] =
   #derive the shared key 
   let sharedKey = crypto_key_exchange(privateKey, encMsg.publicKey)
   #perform decryption
@@ -49,16 +49,15 @@ proc decryptMessage*( privateKey: Key,
                           encMsg.mac, 
                           encMsg.ciphertext)
 
-proc serializeEncryptMessage*(encMsg:EncryptedMessage): string = 
+proc serEncMsg*(encMsg:EncMsg): string = 
   result = toFlatty(encMsg)
 
-proc deserializeEncryptMessage*(serEncMsg:string): EncryptedMessage = 
-  result = serEncMsg.fromFlatty(EncryptedMessage)
+proc desEncMsg*(serEncMsg:string): EncMsg = 
+  result = serEncMsg.fromFlatty(EncMsg)
 
 proc base64Str*(msg:string): string = 
   result = encode(msg,safe=true)
-  
+ 
 proc unbase64str*(msg:string): string = 
-  echo msg
   result = decode(msg)
-  echo result
+  
