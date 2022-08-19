@@ -57,4 +57,3 @@ proc base64Str*(msg:string): string =
  
 proc unbase64str*(msg:string): string = 
   result = decode(msg)
-  
