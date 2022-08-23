@@ -52,8 +52,8 @@ proc serEncMsg*(encMsg:object): string =
 proc desEncMsg*(serEncMsg:string): EncMsg = 
   result = serEncMsg.fromFlatty(EncMsg)
 
-proc base64Str*(msg:string): string = 
+proc b64Str*(msg:string): string = 
   result = encode(msg,safe=true)
  
-proc unbase64str*(msg:string): string = 
+proc unb64str*(msg:string): string = 
   result = decode(msg)

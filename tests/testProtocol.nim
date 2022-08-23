@@ -25,8 +25,16 @@ test "testing enc, serialize, deserialize, dec":
 test "testing base64,enc, serialize, deserialize, dec, unbase64":
   let encMsg = encMsg(a_secretKey,b_publicKey,plaintext)
   let serEncMsg = serEncMsg(encMsg)
-  let base64SerEncMsg = base64Str(serEncMsg)
-  let unbase64SerEncMsg = unbase64Str(base64SerEncMsg)
+  let base64SerEncMsg = b64Str(serEncMsg)
+  let unbase64SerEncMsg = unb64Str(base64SerEncMsg)
   let deSerEncMsg = desEncMsg(unbase64SerEncMsg)
   let ptext = decMsg(b_secretKey,deSerEncMsg)
   doAssert(plaintext == ptext)
+
+# test "testing enc on a blank message":
+#   let encMsg = encMsg(a_secretKey,b_publicKey,'')
+
+# test "testing dec with wrong keys":
+#   let encMsg = encMsg(a_secretKey,b_publicKey,'test')
+#   let decMsg = decMsg('',encMsg)
+  

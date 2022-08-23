@@ -1,23 +1,30 @@
 import protocol
 import flatty 
 import monocypher
-const LOOKUP_TABLE =
-    when defined(release):
-        staticRead("release.json")
-    else:
-        staticRead("debug.json")
+import sysrandom
+import std/oids
+import times
+
+# const LOOKUP_TABLE =
+#     when defined(release):
+#         staticRead("release.json")
+#     else:
+#         staticRead("debug.json")
 
 #this is used to store the encrypted bytes
 type
   EncConfig = ref object
     privKey: Key
-    encObj: seq[byte]
+    pubKey: Key
+    encObj: EncMsg
 
 type
   StaticConfig = ref object
-    buildid: string     #todo 
-    deploymentid: string #todo 
-    callback: string
+    buildid: Oid      #generated on build
+    deploymentid: Oid #generated on deployment
+    killEpoch: int32  #what point should the agent stop calling back and delete
+    interval: int32   #how often should the agent call back
+    callback: string  #where the C2 is 
 
 
 proc serEncConfig*(encMsg:StaticConfig): string = 
@@ -35,3 +42,32 @@ proc readStringFromFile(fileName: string): string =
   let f = open(filename, fmRead)
   defer: f.close()
   result = f.readAll()
+
+proc createEncConfig(): EncConfig =
+
+  let config = new StaticConfig  
+  config.buildid = genOid()
+  config.deploymentid = genOid() #TODO make this part of config
+  config.killEpoch = int32(epochTime() + (60 * 60 * 24 * 7)) #TODO make this configureable
+  config.interval = 1000 #TODO 1 second
+  config.callback = "http://localhost:8080/callback" #TODO make this configureable
+  
+  let configBytes = cast[seq[byte]](serEncConfig(config))
+  
+  let encConfig = new EncConfig
+  encConfig.privKey = getRandomBytes(sizeof(Key))
+  encConfig.pubKey = crypto_key_exchange_public_key(encConfig.privKey)
+  encConfig.encObj = encMsg(encConfig.privKey, encConfig.pubKey,configBytes)
+  result = encConfig
+
+proc readEncConfig(encConfig:EncConfig): StaticConfig =
+  let configBytes = decMsg(encConfig.privKey, encConfig.encObj)
+  let config = desEncConfig(configBytes)
+  result = config
+
+let testConfig = createEncConfig()
+let b64Str = b64str(toFlatty(testConfig))
+let ub64Str = unb64str(b64Str)
+let test = ub64Str.fromFlatty(EncConfig)
+let testRead = readEncConfig(test)
+echo testRead.callback

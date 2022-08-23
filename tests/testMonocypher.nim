@@ -30,3 +30,17 @@ test "encryption works":
   let (mac, ciphertext) = crypto_lock(sharedKey, nonce, plaintext)
   let decrypted = crypto_unlock(sharedKey, nonce, mac, ciphertext)
 
+
+test "decryption works":
+  let sharedKey = crypto_key_exchange(a_secretKey, b_publicKey)
+  let nonce = getRandomBytes(sizeof(Nonce))
+  let plaintext = cast[seq[byte]]("hello")
+  let (mac, ciphertext) = crypto_lock(sharedKey, nonce, plaintext)
+  let decrypted = crypto_unlock(sharedKey, nonce, mac, ciphertext)
+  doAssert(plaintext == decrypted)
+
+test "addition works":
+  let a = cast[seq[byte]]("hello")
+  let b = cast[seq[byte]]("world")
+  let c = a + b
+  doAssert(c == cast[seq[byte]]("helloworld"))
