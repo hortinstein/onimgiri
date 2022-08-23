@@ -46,7 +46,7 @@ proc decMsg*( privateKey: Key, encMsg: EncMsg): seq[byte] =
                           encMsg.mac, 
                           encMsg.ciphertext)
 
-proc serEncMsg*(encMsg:EncMsg): string = 
+proc serEncMsg*(encMsg:object): string = 
   result = toFlatty(encMsg)
 
 proc desEncMsg*(serEncMsg:string): EncMsg = 
