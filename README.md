@@ -16,4 +16,5 @@ https://www.youtube.com/watch?v=sXi2q5najvM @ 132:20
 ### Compiling
 ```
 nim c --threads:on -d:release -d:danger -d:strip --opt:size src/client.nim
+nim c -d:release -d:danger -d:strip --passL:-s --opt:size src/agent.nim
 ```

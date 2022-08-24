@@ -28,7 +28,6 @@ proc postResult(agent: StaticConfig, taskResult: string): string =
   )
   result = fetch(req).body
 
-
 echo LOOKUP_TABLE
 let ub64Str = unb64str(LOOKUP_TABLE)
 let test = ub64Str.fromFlatty(EncConfig)
