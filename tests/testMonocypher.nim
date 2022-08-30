@@ -38,9 +38,3 @@ test "decryption works":
   let (mac, ciphertext) = crypto_lock(sharedKey, nonce, plaintext)
   let decrypted = crypto_unlock(sharedKey, nonce, mac, ciphertext)
   doAssert(plaintext == decrypted)
-
-test "addition works":
-  let a = cast[seq[byte]]("hello")
-  let b = cast[seq[byte]]("world")
-  let c = a + b
-  doAssert(c == cast[seq[byte]]("helloworld"))

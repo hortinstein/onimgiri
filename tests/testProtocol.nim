@@ -15,6 +15,14 @@ test "testing that messages can be enc then dec":
   let decMsg = decMsg(b_secretKey,encMsg)
   doAssert(plaintext == decMsg)
 
+test "testing that messages fail on bad keys":
+  let encMsg = encMsg(a_secretKey,b_publicKey,plaintext)
+  try:
+    let decMsg = decMsg(getRandomBytes(sizeof(Key)),encMsg)
+    doAssert(plaintext == decMsg)
+  except IOError:
+    echo "failed the decryption test"
+  
 test "testing enc, serialize, deserialize, dec":
   let encMsg = encMsg(a_secretKey,b_publicKey,plaintext)
   let serEncMsg = serEncMsg(encMsg)
