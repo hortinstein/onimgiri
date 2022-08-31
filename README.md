@@ -22,6 +22,9 @@ nim c --threads:on -d:release -d:danger -d:strip --opt:size src/client.nim
 nim c -d:release -d:danger -d:strip --passL:-s --opt:size src/agent.nim
 ```
 
+https://redwoodjs.com/docs/how-to/custom-function
+https://redwoodjs.com/docs/serverless-functions
+
 ### Trying for an endpoint
 ```js
 import { DbAuthHandler } from '@redwoodjs/api'
