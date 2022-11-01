@@ -1,0 +1,6 @@
+image:
+  file: nimlang/nim
+tasks:
+  - command: >
+      nimble install
+  
