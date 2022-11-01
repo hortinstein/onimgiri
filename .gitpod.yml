@@ -1,5 +1,5 @@
 image:
-  file: nimlang/nim
+  file: Dockerfile
 tasks:
   - command: >
       nimble install
