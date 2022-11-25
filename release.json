@@ -1,0 +1,5 @@
+{
+  "killEpoch": "1764091654",
+  "interval": "1",
+  "callback": "http://localhost:8080/release"
+}
