@@ -5,6 +5,8 @@
     - [Theme Music](#theme-music)
     - [Helpful Libraries](#helpful-libraries)
     - [Compiling](#compiling)
+- [\<\<\<\<\<\<\< HEAD](#-head)
+    - [Trying for an endpoint](#trying-for-an-endpoint)
 
 ### Theme Music
 https://www.youtube.com/watch?v=sXi2q5najvM @ 132:20
@@ -20,6 +22,7 @@ https://hookrace.net/blog/nim-binary-size/
 ```
 nim c --threads:on -d:release -d:danger -d:strip --opt:size src/client.nim
 nim c -d:release -d:danger -d:strip --passL:-s --opt:size src/agent.nim
+nim js -d:nodejs --out:js/configjs.js -r src/configjs.nim
 ```
 <<<<<<< HEAD
 =======

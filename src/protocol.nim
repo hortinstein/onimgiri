@@ -2,14 +2,7 @@ import monocypher
 import sysrandom
 import flatty
 import std/base64
-
-type
-  EncMsg* = object
-    publicKey*: Key
-    nonce*:     Nonce
-    mac*:       Mac
-    cipherLen:  int
-    cipherText: seq[byte]
+import types
 
 #[
   helper function to convert bytes to string
@@ -51,9 +44,3 @@ proc serEncMsg*(encMsg:object): string =
 
 proc desEncMsg*(serEncMsg:string): EncMsg = 
   result = serEncMsg.fromFlatty(EncMsg)
-
-proc b64Str*(msg:string): string = 
-  result = encode(msg,safe=true)
- 
-proc unb64str*(msg:string): string = 
-  result = decode(msg)

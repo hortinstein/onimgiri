@@ -8,7 +8,8 @@ import monocypher
 import protocol
 import flatty
 import config
-
+import configjs
+import types 
 const LOOKUP_TABLE =
     when defined(release):
         staticRead("../release.config")

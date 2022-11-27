@@ -6,5 +6,7 @@ bin/
 debug.config
 debug.json
 release.config
+
 src/agent
 src/config
+js/configjs.js

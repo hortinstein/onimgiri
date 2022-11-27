@@ -11,7 +11,6 @@ binDir        = "bin"
 installExt    = @["nim"]
 bin           = @["agent,listener,config"]
 
-
 # Dependencies
 requires "nim >= 1.6.6"
 requires "puppy"
