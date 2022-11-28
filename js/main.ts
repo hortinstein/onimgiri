@@ -9,9 +9,6 @@ import { createRequire } from "https://deno.land/std@0.103.0/node/module.ts";
 
 const require = createRequire(import.meta.url);
 
-export function add(a: number, b: number): number {
-  return a + b;
-}
 const config = require("./configjs.js");
 
 import { enc, dec, generateKeyPair } from "./encryption.ts";

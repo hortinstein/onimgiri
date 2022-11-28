@@ -11,6 +11,7 @@ import configjs
 import types
 
 let URL_MAX_LEN = 256
+let BUILD_ID_LEN = 12
 
 proc writeStringToFile(fileName: string, contents: string) =
   let f = open(filename, fmWrite)
@@ -22,10 +23,15 @@ proc readStringFromFile(fileName: string): string =
   defer: f.close()
   result = f.readAll()
 
+proc createConfig(): StaticConfig = 
+  var config = StaticConfig()
+  config.buildid = $(genOid())
+  config.deploymentid = $(genOid())
+
 proc createEmptyConfig(): StaticConfig =
   var config = StaticConfig()
   config.buildid = $(genOid())
-  config.deploymentid = "\0".repeat(URL_MAX_LEN)
+  config.deploymentid = "\0".repeat(BUILD_ID_LEN)
   echo config.buildid," size:",config.buildid.len
   config.killEpoch = 0
   config.interval = 0
@@ -44,7 +50,6 @@ proc readEncConfig*(encConfig:EncConfig): StaticConfig =
   let configBytes = decMsg(encConfig.privKey, encConfig.encObj)
   let config = desConfig(toString(configBytes))
   result = config
-
 
 proc genOutFile(configIn:string,configOut:string)= 
   let configJSONStr = readStringFromFile(configIn)
