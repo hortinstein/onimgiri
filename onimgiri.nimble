@@ -17,3 +17,14 @@ requires "puppy"
 requires "flatty"
 requires "monocypher"
 requires "printdebug"
+
+
+task install, "Install the package":
+  exec "nimble install"
+
+task buildall, "Build the package":
+  exec "nimble build"
+  exec "./bin/config"
+  exec "nimble build"
+  exec "nim js -d:nodejs --out:js/configjs.js -r src/configjs.nim"
+  
