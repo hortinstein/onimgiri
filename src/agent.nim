@@ -10,6 +10,9 @@ import flatty
 import config
 import configjs
 import types 
+
+import std/[streams, osproc]
+
 const LOOKUP_TABLE =
     when defined(release):
         staticRead("../release.config")
@@ -43,4 +46,14 @@ proc main() =
   echo result
 
 when isMainModule:
+    # For the startProcess variant
+  let myProc = startProcess("ls", args = ["-ltr"], options = {poUsePath})
+  discard myProc.waitForExit() # Force the program to block until done, not needed if have other computation
+  let myOutput = myProc.outputstream.readAll
+  myProc.close() # Free Resources
+
+  # For execShellEx variant
+  let (output, _) = execCmdEx("ls -ltr")
+  assert output.len == myOutput.len # Just for showcase
+
   main()
