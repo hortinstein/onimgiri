@@ -74,10 +74,10 @@ when isMainModule:
   #   let configOut = "debug.config"
   #   let configIn = "debug.json"
 
-  let configOut = "release.config"
-  let configIn = "release.json"
-  # let configOut = "debug.config"
-  # let configIn = "debug.json"
+  # let configOut = "release.config"
+  # let configIn = "release.json"
+  let configOut = "debug.config"
+  let configIn = "debug.json"
 
 
   genOutFile(configIn,configOut)
