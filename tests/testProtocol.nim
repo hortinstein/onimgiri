@@ -1,7 +1,9 @@
+import configjs
 import unittest
 import protocol
 import monocypher
 import sysrandom
+import types
 
 let a_secretKey = getRandomBytes(sizeof(Key))
 let a_publicKey = crypto_key_exchange_public_key(a_secretKey)

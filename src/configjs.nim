@@ -11,7 +11,6 @@ import std/strutils
 
 let URL_MAX_LEN* = 256
 
-
 proc serEncConfig*(encMsg:EncConfig): string = 
   result = toFlatty(encMsg)
 

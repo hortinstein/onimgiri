@@ -23,6 +23,8 @@ const NONCE_LEN = 24;
 const MAC_LEN = 16;
 const SIG_LEN = 64;
 
+
+//encryption helper function that mirrors the nim functionality
 export function enc(
   privateKey: Uint8Array,
   publicKey: Uint8Array,
@@ -39,6 +41,7 @@ export function enc(
   return [myPubKey, nonce, mac, cipher];
 }
 
+//decryption helper function that mirrors the nim functionality
 export function dec(
   privateKey: Uint8Array,
   publicKey: Uint8Array,

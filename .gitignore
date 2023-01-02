@@ -9,4 +9,7 @@ release.config
 
 src/agent
 src/config
+tests/testMonocyber
+tests/testTask
+tests/testProtocol
 js/configjs.js

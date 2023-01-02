@@ -9,11 +9,10 @@ import { createRequire } from "https://deno.land/std@0.103.0/node/module.ts";
 const require = createRequire(import.meta.url);
 const config = require("./configjs.js");
 
-//this is a test release configuration to test loading and parsing
-const TEST_CONFIG = new TextEncoder().encode(
-  "AG6xAI4kzBVcuVY6aI7UxD5UkiypM_x4qSkoiiDR844eOmHGcgCC79FypQp7EyghX6ELlSogVwlkFn0IavOdeyk6YcZyAILv0XKlCnsTKCFfoQuVKiBXCWQWfQhq8517Kd5kydlXV2IZZu__sUc2WrVp6583ROO8KiOCBX4j7kh9dCexotZpXmtFAQAAAAAAAEUBAAAAAAAAk7baEWKLuRaXc0C6l5g95F1ACLqqKpobjtOEjQG-12JWnaPwtoscxF2X9l_Gs8zoTh9EgGrfgjqzOwkohJziQ4gbw0-_Tu21k18C8zGqluwX0En2Beu05gSxPEpMYPNEnnewUu4qjdyuEwodeL5Q2TNl5oIBOtXlLwrorkrTYrrYZlvNzaluJPVex7-MgVJuX3WPjcN-V0Hx9xAZ15ONRkSdzghR4ti2Xik-frgrYiXcihPGHvUrCaQEg2gpQX6DseWo0Ft6Hq4wkSRXoNSaljXC2atWmrAL7qTJ0W_D5avW61_WApTlZQWaqlo2-NoJGiW3hs4FKUwWMz97XuMqMF-elX2nUlbyljfjWQQSUDHNVq5JTYj04rZER87BNkJ61lDpMQf4IhoZOlC0aW8hvMNrZ5LrmgM2iCVKDfJhTCeELbNQ2g=="
-);
+// uses the release config for the tests
+const TEST_CONFIG = await Deno.readFile("../release.config")
 
+// this function tests whether the encryption and decryption functions work
 Deno.test(function encrypt_decrypt() {
   const hello_world = new TextEncoder().encode("Hello World");
   const [priv, pub] = generateKeyPair();
@@ -26,7 +25,10 @@ Deno.test(function encrypt_decrypt() {
   assertEquals(hello_world, plain);
 });
 
+// this function tests whether the release config can be loaded and decrypted
+// additionally, it tests whether the callback url is correct
 Deno.test(function loadconfig() {
+
   const config2 = config.unb64Str(TEST_CONFIG);
   const EncConfigObj = config.desEncConfig(config2);
 
@@ -35,13 +37,13 @@ Deno.test(function loadconfig() {
   const nonce = new Uint8Array(EncConfigObj.encObj.nonce);
   const mac = new Uint8Array(EncConfigObj.encObj.mac);
   const cipher = new Uint8Array(EncConfigObj.encObj.cipherText);
-  console.log(EncConfigObj.encObj.ciphertext);
+  //console.log(EncConfigObj.encObj.ciphertext);
   const serConfigObj = dec(privKey, pubKey, nonce, mac, cipher);
   const configObj = config.desConfig(serConfigObj);
-  console.log(configObj);
+  //console.log(configObj);
   const callback = new Uint8Array(configObj.callback);
   const callbackString = new TextDecoder().decode(callback);
   const callbackTrimmed = callbackString;
-  console.log("{", callbackTrimmed, "}");
+  //console.log("{", callbackTrimmed, "}");
   assertStringIncludes(callbackTrimmed, "http://localhost:8080/release");
 });
