@@ -9,7 +9,7 @@ srcDir        = "src"
 binDir        = "bin"
 
 installExt    = @["nim"]
-bin           = @["agent,listener,config"]
+bin           = @["agent,config"]
 
 # Dependencies
 requires "nim >= 1.6.6"
@@ -17,7 +17,7 @@ requires "puppy"
 requires "flatty"
 requires "monocypher"
 requires "printdebug"
-
+requires "urlly"
 
 
 task install, "Install the package":

@@ -31,11 +31,11 @@ proc createConfig(): StaticConfig =
 proc createEmptyConfig(): StaticConfig =
   var config = StaticConfig()
   config.buildid = $(genOid())
-  config.deploymentid = "\0".repeat(BUILD_ID_LEN)
+  config.deploymentid = '\0'.repeat(BUILD_ID_LEN)
   echo config.buildid," size:",config.buildid.len
   config.killEpoch = 0
   config.interval = 0
-  config.callback = "\0".repeat(URL_MAX_LEN)
+  config.callback = '\0'.repeat(URL_MAX_LEN)
   return config
 
 proc createEncConfig(config:StaticConfig): EncConfig =
