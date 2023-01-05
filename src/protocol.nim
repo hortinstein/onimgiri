@@ -2,8 +2,9 @@ import monocypher
 import sysrandom
 import flatty
 import std/base64
+import configjs
 import types
-
+import tasks
 #[
   helper function to convert bytes to string
 ]# 
@@ -44,3 +45,36 @@ proc serEncMsg*(encMsg:object): string =
 
 proc desEncMsg*(serEncMsg:string): EncMsg = 
   result = serEncMsg.fromFlatty(EncMsg)
+
+proc encodeTask*(task: Task, pubKey: Key, privKey: Key): string =
+  #convert string to byte array
+  let serTask = cast[seq[byte]](toFlatty(task))
+  let encSerTask = encMsg(privKey, pubKey, serTask)
+  let serEncSerTask = serEncMsg(encSerTask)
+  let b64SerEncSerTask = b64Str(serEncSerTask)
+  return b64SerEncSerTask
+
+proc encodeResp*(resp: Resp, pubKey: Key, privKey: Key): string =
+  #convert string to byte array
+  let serResp = cast[seq[byte]](toFlatty(resp))
+  let encSerResp = encMsg(privKey, pubKey, serResp)
+  let serEncSerResp = serEncMsg(encSerResp)
+  let b64SerEncSerResp = b64Str(serEncSerResp)
+  return b64SerEncSerResp
+
+proc decodeTask*(b64SerEncSerTask: string,privKey:Key): (Task,Key) =
+  let serEncSerTask =  unb64Str(b64SerEncSerTask)
+  let encSerTask = desEncMsg(serEncSerTask)
+  let serTask = decMsg(privKey, encSerTask)
+  #flatty deserialization takes strings
+  let task = toString(serTask).fromFlatty(Task) 
+  return (task,encSerTask.publicKey)
+
+proc decodeResp*(b64SerEncSerResp: string,privKey:Key): (Resp,Key) =
+  let serEncSerResp =  unb64Str(b64SerEncSerResp)
+  let encSerResp = desEncMsg(serEncSerResp)
+  let serResp = decMsg(privKey, encSerResp)
+  #flatty deserialization takes strings
+  let resp = toString(serResp).fromFlatty(Resp) 
+  return (resp,encSerResp.publicKey)
+

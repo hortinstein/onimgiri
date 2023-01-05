@@ -4,6 +4,7 @@ import protocol
 import monocypher
 import sysrandom
 import types
+import tasks
 
 let a_secretKey = getRandomBytes(sizeof(Key))
 let a_publicKey = crypto_key_exchange_public_key(a_secretKey)
@@ -40,6 +41,25 @@ test "testing base64,enc, serialize, deserialize, dec, unbase64":
   let deSerEncMsg = desEncMsg(unbase64SerEncMsg)
   let ptext = decMsg(b_secretKey,deSerEncMsg)
   doAssert(plaintext == ptext)
+
+test "encode/decode task":
+  let t1 = newTask(1,"test1")
+  echo "t1: ", t1
+  let et1 = encodeTask(t1,b_publicKey,a_secretKey)
+  echo "et1: ", et1
+  let (dt1,pk) = decodeTask(et1,b_secretKey)
+  doAssert(dt1.taskId == t1.taskId)
+
+test "encode/decode resp":
+  let t1 = newTask(1,"test1")
+  echo "t1: ", t1
+  let r1 = Resp(taskId: t1.taskId, resp: "COMPLETE")
+  echo "r1: ", r1
+  let er1 = encodeResp(r1,b_publicKey,a_secretKey)
+  echo "er1: ", er1
+  let (dr1,pk) = decodeResp(er1,b_secretKey)
+  doAssert(dr1.taskId == r1.taskId)
+
 
 # test "testing enc on a blank message":
 #   let encMsg = encMsg(a_secretKey,b_publicKey,'')

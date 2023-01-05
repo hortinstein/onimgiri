@@ -33,7 +33,7 @@ proc newTask*(taskNum: int, req: string): Task =
 type
   TaskTable* = ref object
     tasks*: Table[string, Task] # Table of tasks, indexed by task ID
-
+    
 # Get the ID of the first unsent task in the task table
 proc getUnsentTask*(taskTable: TaskTable): string =
   # Iterate through the task IDs in the task table

