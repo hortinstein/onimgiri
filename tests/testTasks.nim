@@ -9,11 +9,19 @@ import config
 import tasks
 import monocypher
 import types 
+import protocol
 import asynchttpserver, uri, flatty
 
-proc serveTasks(tt: TaskTable, server: AsyncHttpServer) =
+proc serveTasks(tt: TaskTable, 
+                c2PrivKey: Key,
+                agentPubKey: Key,
+                server: AsyncHttpServer) =
   # Define a nested proc that will handle incoming requests
-  proc cb(req: Request, tt: TaskTable,server: AsyncHttpServer) {.async.} =
+  proc cb(req: Request, 
+          tt: TaskTable,
+          c2PrivKey: Key,
+          agentPubKey: Key,
+          server: AsyncHttpServer) {.async.} =
     echo req.url
     # Use a case statement to handle different request methods
     case req.reqMethod
@@ -26,8 +34,11 @@ proc serveTasks(tt: TaskTable, server: AsyncHttpServer) =
         let taskId = getUnsentTask(tt)
         # If a task was returned
         if taskId != "":
+          echo "c2PrivKey: ", c2PrivKey
+          echo "agentPubKey: ", agentPubKey
+          let task = encodeTask(tt.tasks[taskId],c2PrivKey,agentPubKey)
           # Send the task data in the response
-          await req.respond(Http200,toFlatty(tt.tasks[taskId]))
+          await req.respond(Http200,task)
           # Mark the task as retrieved
           assert (tt.tasks[taskId].retrieved == true) 
         # If no tasks are available
@@ -42,7 +53,7 @@ proc serveTasks(tt: TaskTable, server: AsyncHttpServer) =
       
       if req.url.path == "/":
         # Get the response data from the request body
-        let resp = req.body.fromFlatty(Resp)
+        let (resp,key) = decodeResp(req.body,c2PrivKey)
         # Add the response to the task table
         addTaskResp(tt, resp)
         # Send an empty response
@@ -60,12 +71,12 @@ proc serveTasks(tt: TaskTable, server: AsyncHttpServer) =
     # Wait for the server to accept a request and pass it to the cb proc
     echo "waiting for the get request"
     waitFor server.acceptRequest(
-      proc (req: Request): Future[void] = cb(req, tt,server)
+      proc (req: Request): Future[void] = cb(req,tt,c2PrivKey,agentPubKey,server)
     )
     echo "waiting for the post request"
     # Wait for the server to accept another request and pass it to the cb proc
     waitFor server.acceptRequest(
-      proc (req: Request): Future[void] = cb(req, tt,server)
+      proc (req: Request): Future[void] = cb(req,tt,c2PrivKey,agentPubKey,server)
     )
     waitFor sleepAsync(1000)
     
@@ -95,15 +106,14 @@ suite "test the retrieval of tasks and response adding":
     assert (id == t2.taskId)
  
 suite "tests the agent for task response":
-  let c2secretKey = getRandomBytes(sizeof(Key))
-  let c2PublicKey = crypto_key_exchange_public_key(c2secretKey)
+  let c2PrivKey = getRandomBytes(sizeof(Key))
+  let c2PublicKey = crypto_key_exchange_public_key(c2PrivKey)
   
   #gathers the agent context from the config file
-  let context = staticRead("../debug.config")
+  let context = readStringFromFile("./debug.config")
   let ub64Str = unb64str(context)
   let encConfig = ub64Str.fromFlatty(EncConfig)
-  let agentPubKey = encConfig.privKey
-
+  let agentPubKey = encConfig.pubKey
   var tt = newTaskTable()
   let t1 = newTask(1,"test1")
   let t2 = newTask(2,"test2")
@@ -113,27 +123,27 @@ suite "tests the agent for task response":
   
   # setup:
       # For the startProcess variant
-  let agent = startProcess("./bin/agent", options = {poUsePath})
+  #let agent = startProcess("./bin/agent", options = {poUsePath})
   # discard agent.waitForExit() # Force the program to block until done, not needed if have other computation
   # let agent = agent.outputstream.readAll
 
   test "test task1":
     addTask(tt,t1)
-    serveTasks(tt,server)
+    serveTasks(tt,c2PrivKey,agentPubKey,server)
     assert (tt.tasks[t1.taskId].resp == "COMPLETE")
     echo tt.tasks
 
   test "test task2":
     addTask(tt,t2)
-    serveTasks(tt,server)
+    serveTasks(tt,c2PrivKey,agentPubKey,server)
     assert (tt.tasks[t2.taskId].resp == "COMPLETE")
     echo tt.tasks
 
   test "test task3":
     addTask(tt,t3)
-    serveTasks(tt,server)
+    serveTasks(tt,c2PrivKey,agentPubKey,server)
     assert (tt.tasks[t3.taskId].resp == "COMPLETE")
     echo tt.tasks
 
   # teardown:
-  agent.close() # Free Resources
+  #agent.close() # Free Resources

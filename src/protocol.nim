@@ -46,7 +46,7 @@ proc serEncMsg*(encMsg:object): string =
 proc desEncMsg*(serEncMsg:string): EncMsg = 
   result = serEncMsg.fromFlatty(EncMsg)
 
-proc encodeTask*(task: Task, pubKey: Key, privKey: Key): string =
+proc encodeTask*(task: Task, privKey: Key, pubKey: Key): string =
   #convert string to byte array
   let serTask = cast[seq[byte]](toFlatty(task))
   let encSerTask = encMsg(privKey, pubKey, serTask)
@@ -54,7 +54,7 @@ proc encodeTask*(task: Task, pubKey: Key, privKey: Key): string =
   let b64SerEncSerTask = b64Str(serEncSerTask)
   return b64SerEncSerTask
 
-proc encodeResp*(resp: Resp, pubKey: Key, privKey: Key): string =
+proc encodeResp*(resp: Resp, privKey: Key, pubKey: Key): string =
   #convert string to byte array
   let serResp = cast[seq[byte]](toFlatty(resp))
   let encSerResp = encMsg(privKey, pubKey, serResp)

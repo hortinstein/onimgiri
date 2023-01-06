@@ -45,7 +45,7 @@ test "testing base64,enc, serialize, deserialize, dec, unbase64":
 test "encode/decode task":
   let t1 = newTask(1,"test1")
   echo "t1: ", t1
-  let et1 = encodeTask(t1,b_publicKey,a_secretKey)
+  let et1 = encodeTask(t1,a_secretKey,b_publicKey)
   echo "et1: ", et1
   let (dt1,pk) = decodeTask(et1,b_secretKey)
   doAssert(dt1.taskId == t1.taskId)
@@ -55,7 +55,7 @@ test "encode/decode resp":
   echo "t1: ", t1
   let r1 = Resp(taskId: t1.taskId, resp: "COMPLETE")
   echo "r1: ", r1
-  let er1 = encodeResp(r1,b_publicKey,a_secretKey)
+  let er1 = encodeResp(r1,a_secretKey,b_publicKey)
   echo "er1: ", er1
   let (dr1,pk) = decodeResp(er1,b_secretKey)
   doAssert(dr1.taskId == r1.taskId)

